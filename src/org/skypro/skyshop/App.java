@@ -1,48 +1,115 @@
 package org.skypro.skyshop;
 
+
 import org.skypro.skyshop.basket.ProductBasket;
-import org.skypro.skyshop.product.Product;
+import org.skypro.skyshop.content.Article;
+import org.skypro.skyshop.product.*;
+import org.skypro.skyshop.search.SearchEngine;
+import org.skypro.skyshop.search.Searchable;
+
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 
 public class App {
     public static void main(String[] args) {
 
-            Product product1 = new Product("Мороженое", 200);
-            Product product2 = new Product("Пельмени", 456);
-            Product product3 = new Product("Рыба", 455);
-            Product product4 = new Product("Курица", 333);
-            Product product5 = new Product("Сметана", 55);
-            Product product6 = new Product("Торт", 967);
+        ProductBasket basket = new ProductBasket();
+        basket.addProduct(new Product("Хуавей") {
+            @Override
+            public double getPrice() {
+                return 15_000;
+            }
+        });
+        basket.addProduct(new Product("Моторола") {
+            @Override
+            public double getPrice() {
+                return 20_000;
+            }
+        });
+        basket.addProduct(new Product("Сименс") {
+            @Override
+            public double getPrice() {
+                return 30_000;
+            }
+        });
 
-            ProductBasket basket = new ProductBasket();
 
-            System.out.println("\n1. Добавление продуктов в корзину:");
-            basket.addProduct(product1);
-            basket.addProduct(product2);
-            basket.addProduct(product3);
-            basket.addProduct(product4);
-            basket.addProduct(product5);
+        //  Удаление существующего продукта
+        System.out.println("Удаление существующих продуктов");
+        List<Product> removed = basket.removeProductsByName("Хуавей");
 
-            System.out.println("\n2. Попытка добавить продукт в заполненную корзину:");
-            basket.addProduct(product6);
+        System.out.println("\nУдаленные продукты:");
+        for (Product product : removed) {
+            System.out.println(product.getName());
+        }
 
-            System.out.println("\n3. Содержимое корзины:");
-            basket.printBasket();
+        System.out.println("\nСодержимое корзины после удаления:");
+        basket.printContents();
 
-            System.out.println("\n4. Стоимость корзины: " + basket.getTotalCost());
+        // Сценарий 2: Удаление несуществующего продукта
+        System.out.println("\nУдаление несуществующего продукта");
+        removed = basket.removeProductsByName("Нокия");
 
-            System.out.println("\n5. Поиск товара 'Рыба': " + basket.containsProduct("Рыба"));
+        if (removed.isEmpty()) {
+            System.out.println("Список пуст");
+        }
 
-            System.out.println("\n6. Поиск товара 'Тушенка': " + basket.containsProduct("Тушенка"));
+        System.out.println("\nФинальное содержимое корзины:");
+        basket.printContents();
 
-            System.out.println("\n7. Очищаем корзину");
-            basket.clearBasket();
 
-            System.out.println("\n8. Содержимое пустой корзины:");
-            basket.printBasket();
+        try {
 
-            System.out.println("\n9. Стоимость пустой корзины: " + basket.getTotalCost());
+            new SimpleProduct("Iphone", 100);
+            new DiscountedProduct("Iphone", 10, 100);
+            new DiscountedProduct("Samsung", 100, 90);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Ошибка: " + e.getMessage());
+        }
 
-            System.out.println("\n10. Поиск товара 'Мороженное' в пустой корзине: " + basket.containsProduct("Мороженное"));
+
+        SearchEngine<Searchable> productSearchEngine = new SearchEngine<>();
+        productSearchEngine.add(new SimpleProduct("Iphone 15 pro", 77_000));
+        productSearchEngine.add(new SimpleProduct("\nIphone 16 pro max", 137_000));
+        productSearchEngine.add(new SimpleProduct("\nIphone 15 pro max", 105_000));
+
+
+        try {
+
+            Searchable result = productSearchEngine.findBestMatch("Iphone");
+            System.out.println("Найден наилучший результат: " + result.getSearchTerm());
+            result = productSearchEngine.findBestMatch("Samsung");
+
+
+        } catch (BestResultNotFound e) {
+            System.err.println("Ошибка поиска: " + e.getMessage());
+        }
+
+
+        productSearchEngine.add(new DiscountedProduct("\nIphone 15 pro max со скидкой", 105_000, 57));
+        productSearchEngine.add(new FixPriceProduct("\nТовар FIXE PRICE"));
+
+        System.out.println();
+
+
+        productSearchEngine.add(new Article("\nОбзор нового Iphone", "Все минусы и плюсы нового Iphone"));
+        productSearchEngine.add(new Article("\nКак телефон забирает вас из семьи", "Как избавиться от такой зависимости как сидеть в телефоне"));
+
+
+
+
+        System.out.println("Поиск по слову 'Iphone':");
+
+        Map<String, Searchable> results = productSearchEngine.search("Iphone");
+
+        for (Map.Entry<String, Searchable> entry : results.entrySet()) {
+            System.out.println("\nНазвание: " + entry.getKey());
+            System.out.println("\nОбъект: " + entry.getValue());
+            System.out.println("------------");
         }
     }
+}
 
