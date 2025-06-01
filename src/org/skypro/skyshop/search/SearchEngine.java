@@ -4,24 +4,27 @@ import org.skypro.skyshop.product.BestResultNotFound;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 
-public class SearchEngine {
-    private List<Searchable> searchables=new ArrayList<>();
+public class SearchEngine<K extends Searchable> {
+    private List<K> searchables=new ArrayList<>();
 
 
 
 
-    public void add(Searchable searchable) {
-        searchables.add(searchable);
+    public void add(K k) {
+        searchables.add(k);
     }
 
-    public List<Searchable> search(String query) {
-        List<Searchable> results = new ArrayList<>();
+    public Map<String, Searchable> search(String query) {
+        Map<String, Searchable> results = new TreeMap<>();
 
         for (Searchable searchable : searchables) {
             if (searchable.getSearchTerm().contains(query)) {
-                results.add(searchable);
+                // Используем searchTerm как ключ, TreeMap автоматически сортирует по ключам
+                results.put(searchable.getSearchTerm(), searchable);
             }
         }
 
@@ -43,7 +46,7 @@ public class SearchEngine {
         }
 
         if (bestMatch == null) {
-            throw new BestResultNotFound("Не найдено подходящих результатов для запроса '" + search + "'");
+            throw new BestResultNotFound(search);
         }
 
         return bestMatch;
