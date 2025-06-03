@@ -11,6 +11,7 @@ import org.skypro.skyshop.search.Searchable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 public class App {
@@ -103,13 +104,12 @@ public class App {
 
         System.out.println("Поиск по слову 'Iphone':");
 
-        Map<String, Searchable> results = productSearchEngine.search("Iphone");
+        Set<Searchable> results  = productSearchEngine.search("Iphone");
 
-        for (Map.Entry<String, Searchable> entry : results.entrySet()) {
-            System.out.println("\nНазвание: " + entry.getKey());
-            System.out.println("\nОбъект: " + entry.getValue());
-            System.out.println("------------");
+        for (Searchable item : results) {
+            System.out.println(item.getName() + " [" + item.getContentType() + "]");
         }
+
     }
 }
 
